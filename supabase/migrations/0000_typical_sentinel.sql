@@ -1,0 +1,23 @@
+CREATE TABLE "profiles" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"clerk_user_id" text NOT NULL,
+	"slug" text NOT NULL,
+	"full_name" text NOT NULL,
+	"photo_url" text NOT NULL,
+	"bio" text NOT NULL,
+	"background" text NOT NULL,
+	"country" text NOT NULL,
+	"city" text NOT NULL,
+	"working_on" text,
+	"looking_for" text,
+	"linkedin_url" text,
+	"twitter_url" text,
+	"github_url" text,
+	"website_url" text,
+	"ask_me_about" text,
+	"is_published" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "profiles_clerk_user_id_unique" UNIQUE("clerk_user_id"),
+	CONSTRAINT "profiles_slug_unique" UNIQUE("slug")
+);
