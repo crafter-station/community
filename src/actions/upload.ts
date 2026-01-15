@@ -6,7 +6,7 @@ import { nanoid } from "nanoid";
 import { createServiceClient } from "@/lib/supabase/server";
 
 const BUCKET_NAME = "profile-photos";
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB (client compresses before upload)
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export type UploadResult =
@@ -38,7 +38,7 @@ export async function uploadProfilePhoto(
   if (file.size > MAX_FILE_SIZE) {
     return {
       success: false,
-      error: "File too large. Maximum size is 5MB.",
+      error: "File too large. Maximum size is 10MB.",
     };
   }
 

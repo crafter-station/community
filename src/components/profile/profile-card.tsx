@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MapPin } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { isLocalImageUrl } from "@/lib/utils";
 import type { Profile } from "@/db/schema";
 
 type ProfileCardProps = Readonly<{
@@ -22,6 +23,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
             alt={profile.fullName}
             fill
             className="object-cover"
+            unoptimized={isLocalImageUrl(profile.photoUrl)}
           />
         </div>
 

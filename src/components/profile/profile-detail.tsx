@@ -4,6 +4,7 @@ import { MapPin, Briefcase, Target, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SocialLinks } from "@/components/shared/social-links";
+import { isLocalImageUrl } from "@/lib/utils";
 import type { Profile } from "@/db/schema";
 
 type ProfileDetailProps = Readonly<{
@@ -23,6 +24,7 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
               fill
               className="object-cover"
               priority
+              unoptimized={isLocalImageUrl(profile.photoUrl)}
             />
           </div>
 

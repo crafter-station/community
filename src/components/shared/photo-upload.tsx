@@ -3,9 +3,11 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Upload, X, Loader2 } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 import { Button } from "@/components/ui/button";
 import { uploadProfilePhoto } from "@/actions/upload";
+import { isLocalImageUrl } from "@/lib/utils";
 
 type PhotoUploadProps = Readonly<{
   value: string;
@@ -13,8 +15,13 @@ type PhotoUploadProps = Readonly<{
   disabled?: boolean;
 }>;
 
+const MAX_FILE_SIZE_MB = 10;
+const COMPRESSED_MAX_SIZE_MB = 1; // Compress to max 1MB
+const MAX_WIDTH_OR_HEIGHT = 800; // Max dimension for profile photos
+
 export function PhotoUpload({ value, onChange, disabled }: PhotoUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -22,12 +29,29 @@ export function PhotoUpload({ value, onChange, disabled }: PhotoUploadProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check file size before processing
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      setError(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`);
+      return;
+    }
+
     setError(null);
     setIsUploading(true);
+    setUploadStatus("Compressing...");
 
     try {
+      // Compress the image
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: COMPRESSED_MAX_SIZE_MB,
+        maxWidthOrHeight: MAX_WIDTH_OR_HEIGHT,
+        useWebWorker: true,
+        fileType: "image/webp", // Convert to WebP for better compression
+      });
+
+      setUploadStatus("Uploading...");
+
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressedFile);
 
       const result = await uploadProfilePhoto(formData);
 
@@ -40,6 +64,7 @@ export function PhotoUpload({ value, onChange, disabled }: PhotoUploadProps) {
       setError("Failed to upload image");
     } finally {
       setIsUploading(false);
+      setUploadStatus(null);
       // Reset input
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -58,11 +83,13 @@ export function PhotoUpload({ value, onChange, disabled }: PhotoUploadProps) {
         {value ? (
           <div className="relative">
             <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-border">
+              {/* Use unoptimized for local development URLs */}
               <Image
                 src={value}
                 alt="Profile photo"
                 fill
                 className="object-cover"
+                unoptimized={isLocalImageUrl(value)}
               />
             </div>
             <Button
@@ -109,7 +136,7 @@ export function PhotoUpload({ value, onChange, disabled }: PhotoUploadProps) {
             {isUploading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
+                {uploadStatus ?? "Processing..."}
               </>
             ) : value ? (
               "Change photo"
@@ -118,7 +145,7 @@ export function PhotoUpload({ value, onChange, disabled }: PhotoUploadProps) {
             )}
           </Button>
           <p className="mt-1 text-xs text-muted-foreground">
-            JPEG, PNG, WebP or GIF. Max 5MB.
+            JPEG, PNG, WebP or GIF. Max {MAX_FILE_SIZE_MB}MB. Auto-compressed.
           </p>
         </div>
       </div>

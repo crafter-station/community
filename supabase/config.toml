@@ -109,7 +109,7 @@ file_size_limit = "50MiB"
 # Profile photos storage bucket
 [storage.buckets.profile-photos]
 public = true
-file_size_limit = "5MiB"
+file_size_limit = "10MiB"
 allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/gif"]
 
 # Allow connections via S3 compatible clients
