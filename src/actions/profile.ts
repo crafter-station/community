@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
@@ -10,6 +10,39 @@ import { db } from "@/db";
 import { profiles } from "@/db/schema";
 import type { ProfileFormValues } from "@/lib/validations";
 import { profileFormSchema } from "@/lib/validations";
+
+// Helper to sync user data to Clerk
+async function syncToClerk(
+  userId: string,
+  data: { fullName: string; photoUrl: string }
+) {
+  try {
+    const client = await clerkClient();
+    const nameParts = data.fullName.trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    await client.users.updateUser(userId, {
+      firstName,
+      lastName,
+    });
+
+    // Only update profile image if it's not already a Clerk URL
+    // (to avoid circular updates)
+    if (data.photoUrl && !data.photoUrl.includes("clerk.com")) {
+      // Fetch the image and convert to Blob
+      const response = await fetch(data.photoUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        const file = new File([blob], "profile.jpg", { type: blob.type });
+        await client.users.updateUserProfileImage(userId, { file });
+      }
+    }
+  } catch (error) {
+    // Log but don't fail the operation if Clerk sync fails
+    console.error("Failed to sync to Clerk:", error);
+  }
+}
 
 export type ActionResult<T = void> =
   | { success: true; data: T }
@@ -119,6 +152,12 @@ export async function createProfile(
       askMeAbout: data.askMeAbout || null,
     });
 
+    // Sync name and photo to Clerk
+    await syncToClerk(userId, {
+      fullName: data.fullName,
+      photoUrl: data.photoUrl,
+    });
+
     revalidatePath("/directory");
     revalidatePath(`/${data.slug}`);
 
@@ -184,6 +223,17 @@ export async function updateProfile(
         updatedAt: new Date(),
       })
       .where(eq(profiles.clerkUserId, userId));
+
+    // Sync name and photo to Clerk if changed
+    if (
+      data.fullName !== currentProfile.fullName ||
+      data.photoUrl !== currentProfile.photoUrl
+    ) {
+      await syncToClerk(userId, {
+        fullName: data.fullName,
+        photoUrl: data.photoUrl,
+      });
+    }
 
     revalidatePath("/directory");
     revalidatePath(`/${oldSlug}`);
