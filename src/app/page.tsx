@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ProfileCard } from "@/components/profile/profile-card";
 import { getPublishedProfiles, getProfileCount } from "@/actions/directory";
 
+// Revalidate landing page every 5 minutes
+export const revalidate = 300;
+
 export default async function HomePage() {
   const [profiles, totalCount] = await Promise.all([
     getPublishedProfiles(),
