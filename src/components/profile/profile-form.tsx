@@ -32,15 +32,23 @@ import {
 import { BIO_MAX_LENGTH, BACKGROUND_SUGGESTIONS } from "@/lib/constants";
 import type { Profile } from "@/db/schema";
 
+type PrefillData = {
+  fullName?: string;
+  photoUrl?: string;
+};
+
 type ProfileFormProps = Readonly<{
   mode: "create" | "edit";
   initialData?: Profile;
+  prefill?: PrefillData;
 }>;
 
-export function ProfileForm({ mode, initialData }: ProfileFormProps) {
+export function ProfileForm({ mode, initialData, prefill }: ProfileFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl ?? "");
+  const [photoUrl, setPhotoUrl] = useState(
+    initialData?.photoUrl ?? prefill?.photoUrl ?? ""
+  );
   const [slugStatus, setSlugStatus] = useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
@@ -49,7 +57,7 @@ export function ProfileForm({ mode, initialData }: ProfileFormProps) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      fullName: initialData?.fullName ?? "",
+      fullName: initialData?.fullName ?? prefill?.fullName ?? "",
       slug: initialData?.slug ?? "",
       bio: initialData?.bio ?? "",
       background: initialData?.background ?? "",

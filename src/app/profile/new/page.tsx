@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 import { getCurrentUserProfile } from "@/actions/profile";
 import { ProfileForm } from "@/components/profile/profile-form";
@@ -23,6 +23,14 @@ export default async function NewProfilePage() {
     redirect("/profile/edit");
   }
 
+  // Get Clerk user data to prefill form
+  const user = await currentUser();
+
+  const prefillData = {
+    fullName: user?.fullName ?? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim(),
+    photoUrl: user?.imageUrl ?? "",
+  };
+
   return (
     <>
       <Header />
@@ -35,7 +43,7 @@ export default async function NewProfilePage() {
         </div>
 
         <div className="rounded-lg border border-border bg-card p-6">
-          <ProfileForm mode="create" />
+          <ProfileForm mode="create" prefill={prefillData} />
         </div>
       </main>
     </>
