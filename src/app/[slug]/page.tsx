@@ -21,18 +21,18 @@ export async function generateMetadata({
 
   if (!profile) {
     return {
-      title: "Profile Not Found | Crafter Station",
+      title: "Perfil no encontrado",
     };
   }
 
-  const title = `${profile.fullName} | Crafter Station`;
-  const description = profile.bio;
+  const title = profile.fullName;
+  const description = `${profile.bio} | ${profile.background} en ${profile.city}, ${profile.country}`;
 
   return {
     title,
     description,
     openGraph: {
-      title,
+      title: `${profile.fullName} | Builder en Crafter Station`,
       description,
       type: "profile",
       images: [
@@ -45,8 +45,8 @@ export async function generateMetadata({
       ],
     },
     twitter: {
-      card: "summary",
-      title,
+      card: "summary_large_image",
+      title: `${profile.fullName} | Builder en Crafter Station`,
       description,
       images: [profile.photoUrl],
     },

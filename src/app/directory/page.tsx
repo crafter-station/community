@@ -4,12 +4,20 @@ import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { SearchFilter } from "@/components/directory/search-filter";
 import { MemberGrid } from "@/components/directory/member-grid";
-import { getPublishedProfiles, getUniqueBackgrounds } from "@/actions/directory";
+import {
+  getPublishedProfiles,
+  getUniqueBackgrounds,
+} from "@/actions/directory";
 
 export const metadata: Metadata = {
-  title: "Directory | Crafter Station",
+  title: "Directorio",
   description:
-    "Browse the Crafter Station community. Find builders, designers, founders, and more.",
+    "Explora el directorio de builders tech en Perú. Encuentra desarrolladores, diseñadores, founders y más creadores de la comunidad.",
+  openGraph: {
+    title: "Directorio de Builders Tech | Crafter Station",
+    description:
+      "Explora el directorio de builders tech en Perú. Encuentra desarrolladores, diseñadores, founders y más.",
+  },
 };
 
 type DirectoryPageProps = {
@@ -37,7 +45,9 @@ async function DirectoryContent({
   );
 }
 
-export default async function DirectoryPage({ searchParams }: DirectoryPageProps) {
+export default async function DirectoryPage({
+  searchParams,
+}: DirectoryPageProps) {
   const params = await searchParams;
 
   return (

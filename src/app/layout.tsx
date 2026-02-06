@@ -16,9 +16,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Crafter Station Directory",
+  title: {
+    default: "Crafter Station | Comunidad de Builders Tech en Perú",
+    template: "%s | Crafter Station",
+  },
   description:
-    "Meet the Crafter Station community. Discover who's building, connect with like-minded creators, and share your journey.",
+    "Directorio de builders, desarrolladores y creadores tech en Perú. Descubre proyectos innovadores, conecta con la comunidad y comparte lo que estás construyendo.",
+  keywords: [
+    "builders peru",
+    "tech peru",
+    "desarrolladores peru",
+    "startups peru",
+    "comunidad tech",
+    "proyectos tech peru",
+  ],
+  authors: [{ name: "Crafter Station" }],
+  creator: "Crafter Station",
+  openGraph: {
+    type: "website",
+    locale: "es_PE",
+    siteName: "Crafter Station",
+    title: "Crafter Station | Comunidad de Builders Tech en Perú",
+    description:
+      "Directorio de builders, desarrolladores y creadores tech en Perú.",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -38,7 +66,7 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" className="dark">
+      <html lang="es" className="dark">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#000000] text-white`}
         >

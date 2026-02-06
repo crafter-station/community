@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Users, Sparkles, Globe } from "lucide-react";
 
@@ -5,6 +6,17 @@ import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { ProfileCard } from "@/components/profile/profile-card";
 import { getPublishedProfiles, getProfileCount } from "@/actions/directory";
+
+export const metadata: Metadata = {
+  title: "Crafter Station | Comunidad de Builders Tech en Perú",
+  description:
+    "Únete al directorio de builders y creadores tech en Perú. Descubre quién está construyendo, conecta con personas afines y comparte tu proyecto.",
+  openGraph: {
+    title: "Crafter Station | Comunidad de Builders Tech en Perú",
+    description:
+      "Únete al directorio de builders y creadores tech en Perú. Descubre quién está construyendo y comparte tu proyecto.",
+  },
+};
 
 // Revalidate landing page every 5 minutes
 export const revalidate = 300;
@@ -26,13 +38,13 @@ export default async function HomePage() {
         <section className="border-b border-border">
           <div className="mx-auto max-w-5xl px-4 py-20 text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              Meet the{" "}
-              <span className="text-primary">Crafter Station</span>{" "}
+              Meet the <span className="text-primary">Crafter Station</span>{" "}
               Community
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              A directory of builders, designers, and creators. Discover who&apos;s
-              building, connect with like-minded people, and share your journey.
+              A directory of builders, designers, and creators. Discover
+              who&apos;s building, connect with like-minded people, and share
+              your journey.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" asChild>
@@ -114,8 +126,8 @@ export default async function HomePage() {
             <h2 className="text-2xl font-bold">Ready to join?</h2>
             <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
               Create your profile in minutes and become part of the Crafter
-              Station community. Share what you&apos;re building and connect with
-              other creators.
+              Station community. Share what you&apos;re building and connect
+              with other creators.
             </p>
             <Button size="lg" className="mt-8" asChild>
               <Link href="/profile/new">
