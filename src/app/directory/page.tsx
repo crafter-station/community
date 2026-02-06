@@ -7,6 +7,8 @@ import { MemberGrid } from "@/components/directory/member-grid";
 import {
   getPublishedProfiles,
   getUniqueBackgrounds,
+  getUniqueCountries,
+  getUniqueCities,
 } from "@/actions/directory";
 
 export const metadata: Metadata = {
@@ -21,25 +23,44 @@ export const metadata: Metadata = {
 };
 
 type DirectoryPageProps = {
-  searchParams: Promise<{ search?: string; background?: string }>;
+  searchParams: Promise<{
+    search?: string;
+    background?: string;
+    country?: string;
+    city?: string;
+  }>;
 };
 
 async function DirectoryContent({
   searchParams,
 }: {
-  searchParams: { search?: string; background?: string };
+  searchParams: {
+    search?: string;
+    background?: string;
+    country?: string;
+    city?: string;
+  };
 }) {
-  const [profiles, backgrounds] = await Promise.all([
+  const [profiles, backgrounds, countries, cities] = await Promise.all([
     getPublishedProfiles({
       search: searchParams.search,
       background: searchParams.background,
+      country: searchParams.country,
+      city: searchParams.city,
     }),
     getUniqueBackgrounds(),
+    getUniqueCountries(),
+    getUniqueCities(),
   ]);
 
   return (
     <>
-      <SearchFilter backgrounds={backgrounds} totalCount={profiles.length} />
+      <SearchFilter
+        backgrounds={backgrounds}
+        countries={countries}
+        cities={cities}
+        totalCount={profiles.length}
+      />
       <MemberGrid profiles={profiles} />
     </>
   );

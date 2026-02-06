@@ -8,6 +8,8 @@ import { profiles } from "@/db/schema";
 export type DirectoryFilters = {
   search?: string;
   background?: string;
+  country?: string;
+  city?: string;
 };
 
 export async function getPublishedProfiles(filters?: DirectoryFilters) {
@@ -27,6 +29,14 @@ export async function getPublishedProfiles(filters?: DirectoryFilters) {
 
   if (filters?.background) {
     conditions.push(ilike(profiles.background, `%${filters.background}%`));
+  }
+
+  if (filters?.country) {
+    conditions.push(eq(profiles.country, filters.country));
+  }
+
+  if (filters?.city) {
+    conditions.push(eq(profiles.city, filters.city));
   }
 
   const results = await db.query.profiles.findMany({
@@ -54,4 +64,24 @@ export async function getUniqueBackgrounds() {
 
   const backgrounds = [...new Set(results.map((p) => p.background))];
   return backgrounds.sort();
+}
+
+export async function getUniqueCountries() {
+  const results = await db.query.profiles.findMany({
+    where: eq(profiles.isPublished, true),
+    columns: { country: true },
+  });
+
+  const countries = [...new Set(results.map((p) => p.country))];
+  return countries.sort();
+}
+
+export async function getUniqueCities() {
+  const results = await db.query.profiles.findMany({
+    where: eq(profiles.isPublished, true),
+    columns: { city: true },
+  });
+
+  const cities = [...new Set(results.map((p) => p.city))];
+  return cities.sort();
 }
