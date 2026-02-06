@@ -6,6 +6,7 @@ import {
   uuid,
   integer,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -36,5 +37,32 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const projects = pgTable("projects", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  profileId: uuid("profile_id")
+    .notNull()
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  url: text("url"),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Relations
+export const profilesRelations = relations(profiles, ({ many }) => ({
+  projects: many(projects),
+}));
+
+export const projectsRelations = relations(projects, ({ one }) => ({
+  profile: one(profiles, {
+    fields: [projects.profileId],
+    references: [profiles.id],
+  }),
+}));
+
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
+export type Project = typeof projects.$inferSelect;
+export type NewProject = typeof projects.$inferInsert;

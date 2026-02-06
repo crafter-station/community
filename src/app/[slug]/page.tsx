@@ -6,9 +6,11 @@ import { ArrowLeft, Pencil } from "lucide-react";
 
 import { Header } from "@/components/layout/header";
 import { ProfileDetail } from "@/components/profile/profile-detail";
+import { ProjectsList } from "@/components/profile/projects-list";
 import { ClaimButton } from "@/components/profile/claim-button";
 import { Button } from "@/components/ui/button";
 import { getProfileBySlug } from "@/actions/profile";
+import { getProjectsByProfileId } from "@/actions/projects";
 
 type ProfilePageProps = {
   params: Promise<{ slug: string }>;
@@ -62,7 +64,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     notFound();
   }
 
-  const { userId } = await auth();
+  const [{ userId }, projects] = await Promise.all([
+    auth(),
+    getProjectsByProfileId(profile.id),
+  ]);
+
   const isOwner = userId === profile.clerkUserId;
   const isUnclaimed = profile.clerkUserId === null;
 
@@ -97,7 +103,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
         <ProfileDetail profile={profile} />
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        <section className="mt-8">
+          <h2 className="mb-4 text-xl font-semibold">Proyectos</h2>
+          <ProjectsList projects={projects} />
+        </section>
+
+        <div className="mt-8 text-center text-sm text-muted-foreground">
           Miembro desde{" "}
           {new Date(profile.createdAt).toLocaleDateString("es-PE", {
             month: "long",
