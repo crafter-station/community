@@ -17,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Crafter Station Directory",
-  description: "Meet the Crafter Station community. Discover who's building, connect with like-minded creators, and share your journey.",
+  description:
+    "Meet the Crafter Station community. Discover who's building, connect with like-minded creators, and share your journey.",
 };
 
 export default function RootLayout({
@@ -26,10 +27,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider appearance={{ baseTheme: dark }}>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "#FFD700",
+          colorBackground: "#000000",
+          colorInputBackground: "#0A0A0A",
+          colorInputText: "#FAFAFA",
+        },
+      }}
+    >
       <html lang="en" className="dark">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0D0D0D] text-white`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#000000] text-white`}
         >
           {children}
         </body>
