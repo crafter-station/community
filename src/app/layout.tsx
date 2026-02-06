@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -68,7 +63,7 @@ export default function RootLayout({
     >
       <html lang="es" className="dark">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#000000] text-white`}
+          className={`${jetbrainsMono.variable} font-mono antialiased bg-[#000000] text-white`}
         >
           {children}
         </body>
