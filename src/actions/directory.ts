@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, ilike, or, and, desc } from "drizzle-orm";
+import { eq, ilike, or, and, asc } from "drizzle-orm";
 
 import { db } from "@/db";
 import { profiles } from "@/db/schema";
@@ -20,8 +20,8 @@ export async function getPublishedProfiles(filters?: DirectoryFilters) {
         ilike(profiles.fullName, searchTerm),
         ilike(profiles.bio, searchTerm),
         ilike(profiles.background, searchTerm),
-        ilike(profiles.workingOn, searchTerm)
-      )!
+        ilike(profiles.workingOn, searchTerm),
+      )!,
     );
   }
 
@@ -31,7 +31,7 @@ export async function getPublishedProfiles(filters?: DirectoryFilters) {
 
   const results = await db.query.profiles.findMany({
     where: and(...conditions),
-    orderBy: [desc(profiles.createdAt)],
+    orderBy: [asc(profiles.codeId)],
   });
 
   return results;

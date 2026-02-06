@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { eq, isNull, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
@@ -14,7 +14,7 @@ import { profileFormSchema } from "@/lib/validations";
 // Helper to sync user data to Clerk
 async function syncToClerk(
   userId: string,
-  data: { fullName: string; photoUrl: string }
+  data: { fullName: string; photoUrl: string },
 ) {
   try {
     const client = await clerkClient();
@@ -72,7 +72,7 @@ export async function getProfileBySlug(slug: string) {
 
 export async function checkSlugAvailability(
   slug: string,
-  excludeUserId?: string
+  excludeUserId?: string,
 ): Promise<boolean> {
   const existing = await db.query.profiles.findFirst({
     where: eq(profiles.slug, slug),
@@ -104,7 +104,7 @@ export async function generateSlugFromName(name: string): Promise<string> {
 }
 
 export async function createProfile(
-  data: ProfileFormValues & { photoUrl: string }
+  data: ProfileFormValues & { photoUrl: string },
 ): Promise<ActionResult<{ slug: string }>> {
   const { userId } = await auth();
 
@@ -134,9 +134,17 @@ export async function createProfile(
   }
 
   try {
+    // Get next codeId
+    const lastProfile = await db.query.profiles.findFirst({
+      orderBy: [desc(profiles.codeId)],
+      columns: { codeId: true },
+    });
+    const nextCodeId = (lastProfile?.codeId ?? 0) + 1;
+
     await db.insert(profiles).values({
       clerkUserId: userId,
       slug: data.slug,
+      codeId: nextCodeId,
       fullName: data.fullName,
       photoUrl: data.photoUrl,
       bio: data.bio,
@@ -168,8 +176,64 @@ export async function createProfile(
   }
 }
 
+export async function claimProfile(
+  profileId: string,
+): Promise<ActionResult<{ slug: string }>> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return {
+      success: false,
+      error: "Debes iniciar sesión para reclamar un perfil",
+    };
+  }
+
+  // Check if user already has a profile
+  const existingProfile = await getCurrentUserProfile();
+  if (existingProfile) {
+    return { success: false, error: "Ya tienes un perfil creado" };
+  }
+
+  // Get the unclaimed profile
+  const unclaimedProfile = await db.query.profiles.findFirst({
+    where: eq(profiles.id, profileId),
+  });
+
+  if (!unclaimedProfile) {
+    return { success: false, error: "Perfil no encontrado" };
+  }
+
+  if (unclaimedProfile.clerkUserId !== null) {
+    return { success: false, error: "Este perfil ya fue reclamado" };
+  }
+
+  try {
+    await db
+      .update(profiles)
+      .set({
+        clerkUserId: userId,
+        updatedAt: new Date(),
+      })
+      .where(eq(profiles.id, profileId));
+
+    // Sync name and photo to Clerk
+    await syncToClerk(userId, {
+      fullName: unclaimedProfile.fullName,
+      photoUrl: unclaimedProfile.photoUrl,
+    });
+
+    revalidatePath("/directory");
+    revalidatePath(`/${unclaimedProfile.slug}`);
+
+    return { success: true, data: { slug: unclaimedProfile.slug } };
+  } catch (error) {
+    console.error("Failed to claim profile:", error);
+    return { success: false, error: "Error al reclamar el perfil" };
+  }
+}
+
 export async function updateProfile(
-  data: ProfileFormValues & { photoUrl: string }
+  data: ProfileFormValues & { photoUrl: string },
 ): Promise<ActionResult<{ slug: string }>> {
   const { userId } = await auth();
 

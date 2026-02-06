@@ -4,13 +4,14 @@ import {
   timestamp,
   boolean,
   uuid,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
-  clerkUserId: text("clerk_user_id").notNull().unique(),
+  clerkUserId: text("clerk_user_id").unique(),
   slug: text("slug").notNull().unique(),
-  
+
   // Required fields
   fullName: text("full_name").notNull(),
   photoUrl: text("photo_url").notNull(),
@@ -18,7 +19,7 @@ export const profiles = pgTable("profiles", {
   background: text("background").notNull(), // free text for role/background
   country: text("country").notNull(),
   city: text("city").notNull(),
-  
+
   // Optional fields
   workingOn: text("working_on"),
   lookingFor: text("looking_for"),
@@ -27,8 +28,9 @@ export const profiles = pgTable("profiles", {
   githubUrl: text("github_url"),
   websiteUrl: text("website_url"),
   askMeAbout: text("ask_me_about"),
-  
+
   // Metadata
+  codeId: integer("code_id"),
   isPublished: boolean("is_published").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

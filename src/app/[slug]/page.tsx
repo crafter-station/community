@@ -6,6 +6,7 @@ import { ArrowLeft, Pencil } from "lucide-react";
 
 import { Header } from "@/components/layout/header";
 import { ProfileDetail } from "@/components/profile/profile-detail";
+import { ClaimButton } from "@/components/profile/claim-button";
 import { Button } from "@/components/ui/button";
 import { getProfileBySlug } from "@/actions/profile";
 
@@ -63,6 +64,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const { userId } = await auth();
   const isOwner = userId === profile.clerkUserId;
+  const isUnclaimed = profile.clerkUserId === null;
 
   return (
     <>
@@ -72,7 +74,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/directory">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Directory
+              Volver al Directorio
             </Link>
           </Button>
 
@@ -80,17 +82,24 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <Button variant="outline" size="sm" asChild>
               <Link href="/profile/edit">
                 <Pencil className="mr-2 h-4 w-4" />
-                Edit Profile
+                Editar Perfil
               </Link>
             </Button>
+          )}
+
+          {userId && isUnclaimed && (
+            <ClaimButton
+              profileId={profile.id}
+              profileName={profile.fullName}
+            />
           )}
         </div>
 
         <ProfileDetail profile={profile} />
 
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          Member since{" "}
-          {new Date(profile.createdAt).toLocaleDateString("en-US", {
+          Miembro desde{" "}
+          {new Date(profile.createdAt).toLocaleDateString("es-PE", {
             month: "long",
             year: "numeric",
           })}
