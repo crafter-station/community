@@ -58,6 +58,7 @@ export default function RootLayout({
           colorBackground: "#000000",
           colorInputBackground: "#0A0A0A",
           colorInputText: "#FAFAFA",
+          fontFamily: "JetBrains Mono, monospace",
         },
       }}
     >
